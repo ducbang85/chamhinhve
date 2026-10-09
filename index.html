@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Phân Tích & Chấm Bài Vẽ Kỹ Thuật THPT (TCVN SGK Công Nghệ 10)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#035485',
+                            800: '#074872',
+                            900: '#0c3b5e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- MathJax for rendering LaTeX math in Rubric & Standards -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .blueprint-bg {
+            background-color: #0c2340;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @media print {
+            header, nav, #export-actions, .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg blueprint-bg flex items-center justify-center border border-cyan-400/30 text-cyan-400 font-bold text-xl shadow-inner">
+                        <i class="fa-solid font-mono fa-drafting-compass"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight tracking-wide text-slate-100 flex items-center gap-2">
+                            AI TechDraw Assistant 
+                            <span class="bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded border border-cyan-500/30 font-normal">SGK Công Nghệ 10 TCVN</span>
+                        </h1>
+                        <p class="text-xs text-slate-400">Trợ Lý AI Đánh Giá Bài Vẽ Kỹ Thuật Chuẩn Chương Trình THPT</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex space-x-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                    <button onclick="switchTab('analyzer')" id="tab-btn-analyzer" class="tab-btn active px-4 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 bg-brand-600 text-white shadow">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Phân Tích AI
+                    </button>
+                    <button onclick="switchTab('rubric')" id="tab-btn-rubric" class="tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> Rubric SGK 10
+                    </button>
+                    <button onclick="switchTab('tcvn')" id="tab-btn-tcvn" class="tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark"></i> Tra Cứu TCVN (Bài 8 & 9)
+                    </button>
+                    <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-question"></i> Góc Tự Kiểm Tra
+                    </button>
+                </nav>
+
+                <!-- Actions: API Settings Button -->
+                <div class="hidden sm:flex items-center gap-2">
+                    <button onclick="openApiModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors">
+                        <i class="fa-solid fa-key text-amber-400"></i> Cấu hình API
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center gap-2">
+                    <button onclick="openApiModal()" class="p-2 rounded-lg text-amber-400 hover:bg-slate-800">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
+                    <button onclick="toggleMobileNav()" class="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-b border-slate-700 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('analyzer')" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-white bg-brand-600 flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Phân Tích AI
+            </button>
+            <button onclick="switchTab('rubric')" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-list-check"></i> Rubric SGK 10
+            </button>
+            <button onclick="switchTab('tcvn')" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-book-bookmark"></i> Tra Cứu TCVN (Bài 8 & 9)
+            </button>
+            <button onclick="switchTab('quiz')" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-clipboard-question"></i> Góc Tự Kiểm Tra
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- TAB 1: AI ANALYZER -->
+        <div id="tab-analyzer" class="tab-content block space-y-6">
+            
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden border border-brand-500/20">
+                <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 pointer-events-none blueprint-bg"></div>
+                <div class="relative z-10 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-300 text-xs font-semibold mb-3">
+                        <i class="fa-solid fa-graduation-cap"></i> Cập nhật theo SGK Công Nghệ 10 (Bài 8 & Bài 9)
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Chấm & Phân Tích Bài Vẽ Kỹ Thuật Chuẩn TCVN</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Tải lên ảnh chụp bài vẽ tay hoặc bài tập vẽ hình chiếu vuông góc. Hệ thống AI sẽ phân tích đối chiếu trực tiếp với các tiêu chuẩn Tiêu chuẩn Việt Nam trong SGK: Khổ giấy (TCVN 7285), Tỉ lệ (TCVN 7286), Nét vẽ (TCVN 8-24), Chữ viết (TCVN 7284-2), Ghi kích thước (TCVN 5705) và Phương pháp chiếu góc thứ nhất (PPCG1).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Main Work Area Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Column: Image Upload & Controls (5 cols) -->
+                <div class="lg:col-span-5 space-y-6 no-print">
+                    
+                    <!-- Card Upload -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up text-brand-600"></i> Tải Ảnh Bài Vẽ Học Sinh
+                            </h3>
+                            <span class="text-xs text-slate-400">JPG, PNG, WEBP</span>
+                        </div>
+
+                        <!-- Drop Zone -->
+                        <div id="drop-zone" onclick="document.getElementById('image-input').click()" 
+                             class="border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 hover:bg-brand-50/50 rounded-xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[220px] relative group overflow-hidden">
+                            
+                            <!-- Upload Preview Image -->
+                            <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-contain p-2 bg-slate-900/90 z-10" alt="Preview">
+                            
+                            <!-- Overlay actions for preview -->
+                            <div id="preview-overlay" class="hidden absolute inset-0 bg-slate-900/60 z-20 flex items-center justify-center gap-3 backdrop-blur-xs">
+                                <button onclick="event.stopPropagation(); removeImage();" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow">
+                                    <i class="fa-solid fa-trash"></i> Xóa ảnh
+                                </button>
+                                <button onclick="event.stopPropagation(); document.getElementById('image-input').click();" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 rounded-lg text-xs font-semibold flex items-center gap-1 shadow">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Đổi ảnh
+                                </button>
+                            </div>
+
+                            <!-- Upload Placeholder UI -->
+                            <div id="upload-placeholder" class="space-y-3">
+                                <div class="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-image"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-700">Nhấp để chọn hoặc kéo thả ảnh vào đây</p>
+                                    <p class="text-xs text-slate-400 mt-1">Hỗ trợ ảnh bài tập Hình 8.11, Giá đỡ Hình 9.10, Gối đỡ Hình 9.9</p>
+                                </div>
+                            </div>
+
+                            <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                        </div>
+
+                        <!-- Sample Test Drawings Picker -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <label class="block text-xs font-semibold text-slate-500 mb-2">Hoặc chọn bài vẽ mẫu trong SGK Công nghệ 10:</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="loadSampleImage('gia-do')" class="p-2 border border-slate-200 hover:border-brand-500 hover:bg-brand-50 rounded-lg text-left text-xs transition-all flex items-center gap-2 group">
+                                    <div class="w-8 h-8 rounded bg-slate-200 group-hover:bg-brand-200 flex items-center justify-center text-slate-600 group-hover:text-brand-700 font-bold shrink-0">1</div>
+                                    <div class="truncate">
+                                        <p class="font-semibold text-slate-700 group-hover:text-brand-800 truncate">Bài tập Giá Đỡ</p>
+                                        <p class="text-[10px] text-slate-400">Hình 8.11 / 9.10 SGK</p>
+                                    </div>
+                                </button>
+                                <button onclick="loadSampleImage('goi-do-sgk')" class="p-2 border border-slate-200 hover:border-brand-500 hover:bg-brand-50 rounded-lg text-left text-xs transition-all flex items-center gap-2 group">
+                                    <div class="w-8 h-8 rounded bg-slate-200 group-hover:bg-brand-200 flex items-center justify-center text-slate-600 group-hover:text-brand-700 font-bold shrink-0">2</div>
+                                    <div class="truncate">
+                                        <p class="font-semibold text-slate-700 group-hover:text-brand-800 truncate">Bài tập Gối Đỡ</p>
+                                        <p class="text-[10px] text-slate-400">Hình 9.9 SGK trang 55</p>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Options Form -->
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Tên bài vẽ / Đề bài (Tùy chọn)</label>
+                                <input type="text" id="task-title" placeholder="VD: Vẽ 3 hình chiếu Giá đỡ (Hình 8.11 SGK) - Khổ A4 - Tỉ lệ 1:1" 
+                                       class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Trọng tâm tiêu chuẩn cần phân tích</label>
+                                <select id="analysis-focus" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                    <option value="all">Toàn diện 5 tiêu chuẩn TCVN (Khổ giấy, Tỉ lệ, Nét vẽ, Chữ viết, Kích thước & PPCG1)</option>
+                                    <option value="lines">Tập trung Quy chuẩn Nét vẽ (TCVN 8-24:2002)</option>
+                                    <option value="projections">Tập trung Phương pháp chiếu góc thứ nhất (PPCG1 - Bài 9 SGK)</option>
+                                    <option value="dimensions">Tập trung Quy tắc Ghi kích thước (TCVN 5705:1993)</option>
+                                    <option value="titleblock">Tập trung Khung bản vẽ & Khung tên (TCVN 7285:2003)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button id="analyze-btn" onclick="startAIAnalysis()" 
+                                class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-sparkles"></i> Phân Tích & Chấm Bài Ngay
+                        </button>
+                    </div>
+
+                    <!-- Guidelines Card -->
+                    <div class="bg-blue-50/70 border border-blue-200/60 rounded-xl p-4 text-xs text-blue-900 space-y-2">
+                        <div class="font-semibold flex items-center gap-1.5 text-blue-800">
+                            <i class="fa-solid fa-circle-info"></i> Yêu cầu trình bày bài tập SGK Công nghệ 10:
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-slate-600 pl-1">
+                            <li>Vẽ khung bản vẽ (lề trái $20\text{ mm}$, lề khác $10\text{ mm}$) và Khung tên $140 \times 32\text{ mm}$ ở góc dưới bên phải.</li>
+                            <li>Bố trí 3 hình chiếu vuông góc đúng chuẩn **Phương pháp chiếu góc thứ nhất (PPCG1)**.</li>
+                            <li>Đường gióng vượt đường kích thước $2 - 4\text{ mm}$, chữ số ghi phía trên đường kích thước.</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Results & Feedback Display (7 cols) -->
+                <div class="lg:col-span-7">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[520px] flex flex-col">
+                        
+                        <!-- Header Result -->
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-sm">
+                                    <i class="fa-solid fa-square-poll-vertical"></i>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-base">Báo Cáo Đánh Giá & Feedback Định Hình SGK 10</h3>
+                            </div>
+                            <div id="export-actions" class="hidden flex items-center gap-2">
+                                <button onclick="window.print()" class="px-2.5 py-1 text-xs border border-slate-300 hover:bg-slate-50 text-slate-600 rounded-lg flex items-center gap-1">
+                                    <i class="fa-solid fa-print"></i> In báo cáo
+                                </button>
+                                <button onclick="copyFeedbackText()" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-900 text-white rounded-lg flex items-center gap-1">
+                                    <i class="fa-solid fa-copy"></i> Sao chép
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="loading-state" class="hidden flex-grow flex flex-col items-center justify-center py-12 space-y-4">
+                            <div class="relative w-16 h-16">
+                                <div class="w-16 h-16 rounded-full border-4 border-brand-200 border-t-brand-600 animate-spin"></div>
+                                <div class="absolute inset-0 flex items-center justify-center text-brand-600 text-xs font-bold">
+                                    <i class="fa-solid fa-drafting-compass animate-bounce"></i>
+                                </div>
+                            </div>
+                            <div class="text-center space-y-1">
+                                <p class="font-semibold text-slate-700 text-sm">AI đang đối chiếu nét vẽ & vị trí hình chiếu với SGK Công Nghệ 10...</p>
+                                <p class="text-xs text-slate-400">Kiểm tra TCVN 7285, TCVN 7286, TCVN 8-24, TCVN 7284-2, TCVN 5705 & PPCG1</p>
+                            </div>
+                        </div>
+
+                        <!-- Initial Empty State -->
+                        <div id="empty-state" class="flex-grow flex flex-col items-center justify-center py-16 text-center space-y-3">
+                            <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl">
+                                <i class="fa-solid fa-file-magnifying-glass"></i>
+                            </div>
+                            <div class="max-w-sm">
+                                <p class="font-semibold text-slate-600 text-sm">Chưa có bài vẽ nào được phân tích</p>
+                                <p class="text-xs text-slate-400 mt-1">Hãy tải ảnh bài làm lên hoặc chọn một trong các bài tập mẫu trong SGK Công nghệ 10 ở cột bên trái.</p>
+                            </div>
+                        </div>
+
+                        <!-- Result Output Content -->
+                        <div id="result-container" class="hidden space-y-6 flex-grow">
+                            
+                            <!-- -->
+                            <div id="real-visual-analysis" class="bg-slate-900 text-slate-100 rounded-xl p-4 border border-slate-800 space-y-3 shadow-md">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-microscope text-cyan-400"></i>
+                                        <span class="font-bold text-xs uppercase tracking-wider text-cyan-300">Dữ liệu Quét Thị Giác & Pixel Thực Tế (Visual Scan Engine)</span>
+                                    </div>
+                                    <span id="scan-time-badge" class="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800/50 px-2 py-0.5 rounded font-mono">Đã quét 100% Pixel</span>
+                                </div>
+                                
+                                <!-- Metrics Grid derived from actual image pixels -->
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                    <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
+                                        <div class="text-[10px] text-slate-400">Khổ & Dạng giấy</div>
+                                        <div id="metric-paper" class="font-bold text-slate-200 mt-0.5 truncate">---</div>
+                                    </div>
+                                    <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
+                                        <div class="text-[10px] text-slate-400">Tương phản & Đậm nét</div>
+                                        <div id="metric-contrast" class="font-bold text-amber-400 mt-0.5 truncate">---</div>
+                                    </div>
+                                    <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
+                                        <div class="text-[10px] text-slate-400">Phân bố Hình chiếu</div>
+                                        <div id="metric-views" class="font-bold text-emerald-400 mt-0.5 truncate">---</div>
+                                    </div>
+                                    <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
+                                        <div class="text-[10px] text-slate-400">Vùng Khung tên (Góc phải)</div>
+                                        <div id="metric-titleblock" class="font-bold text-cyan-400 mt-0.5 truncate">---</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Competency Level Score Card -->
+                            <div id="score-card" class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-4 flex items-center justify-between">
+                                <div class="space-y-1">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Mức độ năng lực đạt được (Theo SGK 10)</span>
+                                    <h4 id="level-title" class="text-xl font-extrabold text-amber-900">Đang Phát Triển (Developing)</h4>
+                                    <p id="level-desc" class="text-xs text-amber-800/80">Học sinh đã vẽ đúng 3 hình chiếu vuông góc nhưng chưa tuân thủ chuẩn nét đứt $12d/3d$ và kích thước TCVN 5705.</p>
+                                </div>
+                                <div class="text-right">
+                                    <div id="level-badge" class="px-3 py-1.5 rounded-xl bg-amber-500 text-white font-bold text-sm shadow-sm inline-block">
+                                        Mức 2 / 4
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Formative Feedback Body (Markdown) -->
+                            <div id="feedback-markdown" class="prose prose-slate max-w-none text-xs sm:text-sm leading-relaxed custom-scrollbar overflow-y-auto max-h-[500px] pr-2 space-y-4">
+                                <!-- Dynamic Markdown Rendered Content -->
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TAB 2: RUBRIC CARD MATRIX -->
+        <div id="tab-rubric" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-semibold text-brand-600 uppercase tracking-wide mb-1">
+                        <i class="fa-solid fa-book-open"></i> Chuẩn Kiến Thức SGK Công Nghệ 10 (Chương II)
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-brand-600"></i> Khung Rubric Đánh Giá Bản Vẽ Kỹ Thuật Lớp 10
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Xây dựng dựa trên Tiêu chuẩn Việt Nam ban hành trong SGK (TCVN 7285, TCVN 7286, TCVN 8-24, TCVN 7284-2, TCVN 5705 & PPCG1).
+                    </p>
+                </div>
+
+                <!-- Rubric Table / Grid -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold">
+                                <th class="p-3 w-1/5">Tiêu chí (TCVN & SGK 10)</th>
+                                <th class="p-3 w-1/5 text-emerald-700 bg-emerald-50/50">1. Xuất sắc (Good - 4 điểm)</th>
+                                <th class="p-3 w-1/5 text-blue-700 bg-blue-50/50">2. Đạt (Proficient - 3 điểm)</th>
+                                <th class="p-3 w-1/5 text-amber-700 bg-amber-50/50">3. Cần cải thiện (Developing - 2 điểm)</th>
+                                <th class="p-3 w-1/5 text-rose-700 bg-rose-50/50">4. Chưa đạt (Needs Work - 1 điểm)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 text-slate-600">
+                            
+                            <!-- Criterion 1: Line Types (TCVN 8-24:2002) -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-800 bg-slate-50/80">
+                                    <div class="font-bold text-slate-900">1. Quy chuẩn nét vẽ</div>
+                                    <div class="text-[10px] text-brand-600 font-mono mt-0.5">TCVN 8-24:2002 (Bảng 8.3 SGK)</div>
+                                    <p class="text-[11px] text-slate-500 font-normal mt-1">Nét liền đậm $d$, nét mảnh $d/2$, đứt mảnh ($12d/3d$), gạch dài chấm mảnh ($24d/6d$).</p>
+                                </td>
+                                <td class="p-3 bg-emerald-50/20">Phân biệt rõ ràng nét đậm $d$ cho đường bao thấy và nét mảnh $d/2$. Khoảng hở nét đứt ($3d$), gạch dài ($12d$), đường tâm ($24d$) cực kỳ chính xác.</td>
+                                <td class="p-3 bg-blue-50/20">Phân biệt được nét đậm và nét mảnh; nét đứt và nét gạch dài chấm mảnh vẽ đúng loại nhưng mật độ khe hở chưa thật đều tay.</td>
+                                <td class="p-3 bg-amber-50/20">Nhầm lẫn giữa nét liền đậm và liền mảnh; dùng sai nét liền mảnh để làm đường tâm hoặc đường bao khuất.</td>
+                                <td class="p-3 bg-rose-50/20">Không phân biệt được nét vẽ, chỉ dùng $1$ loại nét duy nhất cho toàn bộ bài làm.</td>
+                            </tr>
+
+                            <!-- Criterion 2: Projections & PPCG1 (Lesson 9 SGK) -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-800 bg-slate-50/80">
+                                    <div class="font-bold text-slate-900">2. Độ chính xác hình chiếu & Vị trí PPCG1</div>
+                                    <div class="text-[10px] text-brand-600 font-mono mt-0.5">Bài 9 SGK (PPCG1 - Hình 9.5)</div>
+                                    <p class="text-[11px] text-slate-500 font-normal mt-1">HCD nhìn từ trước; HCB nằm DƯỚI HCD; HCC nằm BÊN PHẢI HCD.</p>
+                                </td>
+                                <td class="p-3 bg-emerald-50/20">Bố trí 3 hình chiếu chuẩn xác theo PPCG1. Các đường gióng nằm ngang và thẳng đứng giữa các hình chiếu gióng chính xác $100\%$.</td>
+                                <td class="p-3 bg-blue-50/20">Bố trí đúng vị trí các hình chiếu theo PPCG1, nhưng có $1 - 2$ đường gióng bị lệch $1-2\text{ mm}$.</td>
+                                <td class="p-3 bg-amber-50/20">Đặt sai vị trí hình chiếu theo PPCG1 (VD: nhầm vị trí Hình chiếu bằng lên trên hoặc Hình chiếu cạnh sang bên trái).</td>
+                                <td class="p-3 bg-rose-50/20">Vẽ thiếu hình chiếu vuông góc hoặc biểu diễn sai hoàn toàn hình dáng 3D của vật thể.</td>
+                            </tr>
+
+                            <!-- Criterion 3: Dimensioning Standard (TCVN 5705:1993) -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-800 bg-slate-50/80">
+                                    <div class="font-bold text-slate-900">3. Quy tắc ghi kích thước</div>
+                                    <div class="text-[10px] text-brand-600 font-mono mt-0.5">TCVN 5705:1993 (Hình 8.10 SGK)</div>
+                                    <p class="text-[11px] text-slate-500 font-normal mt-1">Đơn vị mm; đường gióng vượt $2-4\text{ mm}$; con số ghi phía trên đường kích thước; kí hiệu $\varnothing, R$.</p>
+                                </td>
+                                <td class="p-3 bg-emerald-50/20">Ghi đủ kích thước để chế tạo. Đường gióng vượt quá mũi tên $2 - 4\text{ mm}$. Chữ số kích thước đặt phía trên, đúng hướng song song. Ký hiệu $\varnothing, R$ đầy đủ.</td>
+                                <td class="p-3 bg-blue-50/20">Ghi đủ kích thước nhưng đường gióng chạm nét bao hoặc chữ số chạm vào đường kích thước.</td>
+                                <td class="p-3 bg-amber-50/20">Thiếu kích thước quan trọng; con số kích thước bị đường kẻ cắt ngang qua hoặc ghi chữ "mm" sau con số.</td>
+                                <td class="p-3 bg-rose-50/20">Không ghi kích thước hoặc ghi sai quy tắc hoàn toàn (ghi chữ số dưới đường kích thước).</td>
+                            </tr>
+
+                            <!-- Criterion 4: Paper Format & Title Block (TCVN 7285 & 7286) -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-800 bg-slate-50/80">
+                                    <div class="font-bold text-slate-900">4. Bố cục, Khung bản vẽ & Khung tên</div>
+                                    <div class="text-[10px] text-brand-600 font-mono mt-0.5">TCVN 7285:2003 (Hình 8.5 & 8.6 SGK)</div>
+                                    <p class="text-[11px] text-slate-500 font-normal mt-1">Lề trái $20\text{ mm}$, lề khác $10\text{ mm}$. Khung tên $140 \times 32\text{ mm}$ chứa 9 nội dung chuẩn.</p>
+                                </td>
+                                <td class="p-3 bg-emerald-50/20">Vẽ khung bản vẽ đúng lề ($20/10\text{ mm}$). Kẻ khung tên đúng kích thước $140 \times 32\text{ mm}$ ở góc dưới bên phải, điền đủ $9$ ô thông tin ngay ngắn.</td>
+                                <td class="p-3 bg-blue-50/20">Có khung vẽ và khung tên đúng kích thước nhưng điền thiếu $1 - 2$ ô thông tin (vật liệu, tỉ lệ, tờ số).</td>
+                                <td class="p-3 bg-amber-50/20">Khung tên vẽ sai kích thước tiêu chuẩn ($140 \times 32\text{ mm}$); đặt sai vị trí hoặc tẩy xóa nhiều.</td>
+                                <td class="p-3 bg-rose-50/20">Không có khung bản vẽ và khung tên. Bài làm bẩn, rách hoặc nhàu nát.</td>
+                            </tr>
+
+                            <!-- Criterion 5: Technical Lettering (TCVN 7284-2:2003) -->
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-800 bg-slate-50/80">
+                                    <div class="font-bold text-slate-900">5. Chữ viết & Chữ số kỹ thuật</div>
+                                    <div class="text-[10px] text-brand-600 font-mono mt-0.5">TCVN 7284-2:2003 (Hình 8.8 SGK)</div>
+                                    <p class="text-[11px] text-slate-500 font-normal mt-1">Khổ chữ $h$ ($2{,}5; 3{,}5; 5; 7\text{ mm}$), Kiểu A/B, viết đứng hoặc nghiêng $75^\circ$.</p>
+                                </td>
+                                <td class="p-3 bg-emerald-50/20">Chữ viết kỹ thuật đúng nét kiểu B ($d = h/10$), đều đặn, rõ ràng, đúng chiều cao khổ chữ quy định ($3{,}5\text{ mm}$ hoặc $5\text{ mm}$).</td>
+                                <td class="p-3 bg-blue-50/20">Chữ viết rõ ràng nhưng chiều cao các chữ cái chưa thật đồng đều giữa các dòng.</td>
+                                <td class="p-3 bg-amber-50/20">Chữ viết tay tự do thông thường, không tuân theo nét chữ kỹ thuật; kích thước quá to hoặc quá nhỏ.</td>
+                                <td class="p-3 bg-rose-50/20">Chữ viết cẩu thả, không đọc được con số kích thước và thông tin khung tên.</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: TCVN REFERENCE LOOKUP (FROM SGK LESSON 8 & 9) -->
+        <div id="tab-tcvn" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-semibold text-brand-600 uppercase tracking-wide mb-1">
+                        <i class="fa-solid fa-book"></i> Tra Cứu Trực Tra Sách Giáo Khoa
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open-reader text-brand-600"></i> Tổng Hợp Tiêu Chuẩn Trình Bày Bản Vẽ Kỹ Thuật (SGK Bài 8 & 9)
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Tóm tắt chuẩn 5 tiêu chuẩn TCVN và Phương pháp chiếu góc thứ nhất trong SGK Công nghệ 10</p>
+                </div>
+
+                <!-- Standards Visual Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    
+                    <!-- Standard 1: Paper Sizes & Title Block -->
+                    <div class="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-sm text-slate-800">1. Khổ Giấy & Khung Tên</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-brand-100 text-brand-800 font-semibold rounded">TCVN 7285:2003</span>
+                            </div>
+                            <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+                                <li><strong>Khổ giấy chính:</strong> A0 ($1189 \times 841$), A1 ($841 \times 594$), A2 ($594 \times 420$), A3 ($420 \times 297$), A4 ($297 \times 210\text{ mm}$).</li>
+                                <li><strong>Khung bản vẽ:</strong> Nét liền đậm, cách cạnh trái $20\text{ mm}$ (để đóng tập), các cạnh khác cách $10\text{ mm}$.</li>
+                                <li><strong>Khung tên:</strong> Kích thước $140 \times 32\text{ mm}$ đặt góc dưới bên phải. Chứa 9 thông tin (Tên vật thể, Vật liệu, Tỉ lệ, Tờ số, Người vẽ, Ngày lập, Kiểm tra, Trường/Lớp).</li>
+                            </ul>
+                        </div>
+                        <div class="p-2 bg-white rounded border border-slate-200 text-center text-[11px] font-mono text-slate-500">
+                            Khung tên chuẩn: $140\text{ mm} \times 32\text{ mm}$
+                        </div>
+                    </div>
+
+                    <!-- Standard 2: Scale -->
+                    <div class="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-sm text-slate-800">2. Tỉ Lệ Bản Vẽ</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-brand-100 text-brand-800 font-semibold rounded">TCVN 7286:2003</span>
+                            </div>
+                            <p class="text-xs text-slate-600 mb-2">Tỉ lệ là tỉ số giữa kích thước dài đo trên bản vẽ và kích thước thực tế của vật thể.</p>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex justify-between bg-white p-1.5 rounded border border-slate-100">
+                                    <span class="font-semibold text-slate-700">Nguyên hình:</span>
+                                    <span class="font-mono text-brand-700">$1:1$</span>
+                                </div>
+                                <div class="flex justify-between bg-white p-1.5 rounded border border-slate-100">
+                                    <span class="font-semibold text-slate-700">Thu nhỏ:</span>
+                                    <span class="font-mono text-slate-600">$1:2; 1:5; 1:10; 1:20; 1:50\dots$</span>
+                                </div>
+                                <div class="flex justify-between bg-white p-1.5 rounded border border-slate-100">
+                                    <span class="font-semibold text-slate-700">Phóng to:</span>
+                                    <span class="font-mono text-slate-600">$2:1; 5:1; 10:1; 20:1\dots$</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-amber-700 bg-amber-50 p-1.5 rounded border border-amber-200">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Kích thước ghi trên bản vẽ luôn là <strong>kích thước thực</strong>!
+                        </p>
+                    </div>
+
+                    <!-- Standard 3: Line Types -->
+                    <div class="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-sm text-slate-800">3. Các Loại Nét Vẽ</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-brand-100 text-brand-800 font-semibold rounded">TCVN 8-24:2002</span>
+                            </div>
+                            <ul class="text-xs text-slate-600 space-y-1">
+                                <li><strong>Nét liền đậm ($d$):</strong> Đường bao thấy, cạnh thấy ($d = 0{,}5 - 0{,}7\text{ mm}$).</li>
+                                <li><strong>Nét liền mảnh ($d/2$):</strong> Đường kích thước, đường gióng, nét gạch mặt cắt.</li>
+                                <li><strong>Nét đứt mảnh:</strong> Đường bao khuất, cạnh khuất ($12d$ gạch, $3d$ khe hở).</li>
+                                <li><strong>Nét gạch dài chấm mảnh:</strong> Đường tâm, đường trục đối xứng ($24d$ gạch, $6d$ hở).</li>
+                                <li><strong>Nét lượn sóng:</strong> Đường giới hạn hình chiếu / hình cắt.</li>
+                            </ul>
+                        </div>
+                        <div class="text-[11px] text-slate-500 font-mono bg-white p-1.5 rounded border border-slate-200">
+                            Dãy bề rộng $d$: $0{,}13; 0{,}18; 0{,}25; 0{,}5; 0{,}7; 1{,}4; 2\text{ mm}$.
+                        </div>
+                    </div>
+
+                    <!-- Standard 4: Lettering -->
+                    <div class="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-sm text-slate-800">4. Chữ Viết Kỹ Thuật</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-brand-100 text-brand-800 font-semibold rounded">TCVN 7284-2:2003</span>
+                            </div>
+                            <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+                                <li><strong>Khổ chữ ($h$):</strong> Chiều cao chữ hoa tính bằng mm ($1{,}8; 2{,}5; 3{,}5; 5; 7; 10; 14; 20\text{ mm}$).</li>
+                                <li><strong>Kiểu chữ A:</strong> Nét chữ $d = \frac{1}{14}h$.</li>
+                                <li><strong>Kiểu chữ B:</strong> Nét chữ $d = \frac{1}{10}h$ (Thường dùng).</li>
+                                <li>Viết đứng hoặc nghiêng $75^\circ$ so với phương nằm ngang.</li>
+                            </ul>
+                        </div>
+                        <div class="p-2 bg-white rounded border border-slate-200 text-center font-mono font-bold tracking-widest text-slate-700 text-xs">
+                            ABC 123 456 R25 Ø12
+                        </div>
+                    </div>
+
+                    <!-- Standard 5: Dimensioning -->
+                    <div class="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-sm text-slate-800">5. Quy Tắc Ghi Kích Thước</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-brand-100 text-brand-800 font-semibold rounded">TCVN 5705:1993</span>
+                            </div>
+                            <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+                                <li>Đơn vị đo độ dài là <strong>milimét (mm)</strong> (không cần ghi chữ "mm" sau con số).</li>
+                                <li>Đường gióng kẻ vuông góc, nhô vượt đường kích thước $2 - 4\text{ mm}$.</li>
+                                <li>Con số kích thước ghi **phía trên** đường kích thước.</li>
+                                <li>Trước kích thước đường kính ghi $\varnothing$, bán kính ghi $R$.</li>
+                            </ul>
+                        </div>
+                        <div class="p-1.5 bg-brand-50 rounded border border-brand-200 text-[11px] text-brand-900 font-semibold">
+                            VD: $\varnothing20$, $R25$, con số song song đường kích thước
+                        </div>
+                    </div>
+
+                    <!-- Standard 6: First Angle Projection (PPCG1) -->
+                    <div class="p-4 border border-brand-200 rounded-xl bg-brand-50/30 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-sm text-brand-900">6. Phương Pháp Chiếu Góc Thứ Nhất</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-brand-600 text-white font-semibold rounded">PPCG1 (Bài 9)</span>
+                            </div>
+                            <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+                                <li>Vật thể đặt ở giữa Người quan sát và Mặt phẳng chiếu.</li>
+                                <li><strong>Hình chiếu đứng (A):</strong> Hướng nhìn từ trước.</li>
+                                <li><strong>Hình chiếu bằng (B):</strong> Hướng nhìn từ trên, đặt <strong>DƯỚI</strong> hình chiếu đứng.</li>
+                                <li><strong>Hình chiếu cạnh (C):</strong> Hướng nhìn từ trái, đặt <strong>BÊN PHẢI</strong> hình chiếu đứng.</li>
+                            </ul>
+                        </div>
+                        <div class="p-2 bg-white rounded border border-brand-200 text-center font-bold text-xs text-brand-800">
+                            Bố trí: A (Đứng) | C (Cạnh) ở phải | B (Bằng) ở dưới
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: SELF-CHECK QUIZ & CHECKLIST -->
+        <div id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-semibold text-brand-600 uppercase tracking-wide mb-1">
+                        <i class="fa-solid fa-list-check"></i> Đánh Giá Định Hình (Formative Self-Check)
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-brand-600"></i> Góc Tự Kiểm Tra Trước Khi Nộp Bài (SGK Công Nghệ 10)
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Học sinh tích chọn từng tiêu chí TCVN để kiểm tra và phát hiện lỗi sai trên bài vẽ của mình</p>
+                </div>
+
+                <!-- Checklist Items -->
+                <div class="space-y-3">
+                    
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" class="quiz-check mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500" onchange="updateQuizScore()">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">1. Đã vẽ Khung bản vẽ và Khung tên chuẩn kích thước $140 \times 32\text{ mm}$ (TCVN 7285)?</p>
+                            <p class="text-[11px] text-slate-500">Khung bản vẽ cách mép trái $20\text{ mm}$, các mép khác $10\text{ mm}$. Khung tên nằm ở góc dưới bên phải gồm $9$ ô nội dung.</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" class="quiz-check mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500" onchange="updateQuizScore()">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">2. Đã phân biệt rõ Nét liền đậm ($d$) cho đường bao thấy và Nét liền mảnh ($d/2$) cho đường gióng?</p>
+                            <p class="text-[11px] text-slate-500">Đường bao thấy rõ đậm gấp đôi nét đường gióng và nét gạch gạch mặt cắt (theo Bảng 8.3 SGK).</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" class="quiz-check mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500" onchange="updateQuizScore()">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">3. Đường tâm / trục đối xứng đã vẽ bằng nét gạch dài chấm mảnh ($24d/6d$)?</p>
+                            <p class="text-[11px] text-slate-500">Không vẽ đường tâm bằng nét liền mảnh. Đường tâm phải nhô ra ngoài đường bao thấy từ $2 - 4\text{ mm}$.</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" class="quiz-check mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500" onchange="updateQuizScore()">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">4. Đã bố trí 3 hình chiếu vuông góc đúng vị trí Phương pháp chiếu góc thứ nhất (PPCG1)?</p>
+                            <p class="text-[11px] text-slate-500">Hình chiếu bằng nằm ngay DƯỚI Hình chiếu đứng; Hình chiếu cạnh nằm ngay BÊN PHẢI Hình chiếu đứng.</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" class="quiz-check mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500" onchange="updateQuizScore()">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">5. Đường gióng kích thước đã kẻ nhô vượt đường kích thước $2 - 4\text{ mm}$ (TCVN 5705)?</p>
+                            <p class="text-[11px] text-slate-500">Đường gióng không cắt đè qua chữ số kích thước và không kéo dính chặt vào cạnh vật thể.</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" class="quiz-check mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500" onchange="updateQuizScore()">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">6. Chữ số kích thước nằm PHÍA TRÊN đường kích thước, trước đường tròn có kí hiệu $\varnothing$, cung tròn có $R$?</p>
+                            <p class="text-[11px] text-slate-500">Đơn vị đo mặc định là mm (không viết thêm chữ mm sau con số trên bản vẽ).</p>
+                        </div>
+                    </label>
+
+                </div>
+
+                <!-- Quiz Result Meter -->
+                <div class="p-4 bg-slate-100 rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500">Tiến độ tự kiểm tra tiêu chuẩn SGK:</span>
+                        <h4 id="quiz-status" class="text-sm font-bold text-slate-800">Hãy tích chọn các mục bạn đã hoàn thành</h4>
+                    </div>
+                    <div id="quiz-score-badge" class="px-4 py-2 bg-slate-300 text-slate-700 font-bold text-sm rounded-lg">
+                        0 / 6 Đạt
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- API Key Settings Modal -->
+    <div id="api-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100 relative">
+            <button onclick="closeApiModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 text-brand-600">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base">Cấu hình Google Gemini API Key</h3>
+                    <p class="text-xs text-slate-500">Dành cho Giáo viên / Học sinh có API Key riêng</p>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Nếu không nhập API Key, ứng dụng vẫn hoạt động bình thường ở <strong>Chế độ Phân tích Tự động Offline & Mẫu SGK</strong> với ngân hàng dữ liệu phản hồi TCVN chi tiết.
+            </p>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs font-semibold text-slate-700">Google Gemini API Key (Tùy chọn):</label>
+                <input type="password" id="api-key-input" placeholder="AIzaSy..." 
+                       class="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none font-mono">
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="clearApiKey()" class="px-3 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-medium">
+                    Xóa Key
+                </button>
+                <button onclick="saveApiKey()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow">
+                    Lưu & Sử Dụng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 text-xs py-6 mt-12 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
+            <p>© 2026 AI TechDraw Assistant - Công Nghệ 10 THPT (Bộ Sách Kết Nối Tri Thức Với Cuộc Sống)</p>
+            <p class="text-slate-500">Ứng dụng hỗ trợ học sinh & giáo viên đánh giá định hình bài vẽ kỹ thuật theo TCVN 7285, 7286, 8-24, 7284-2, 5705 & PPCG1</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Box -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 text-xs pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toast-msg">Thông báo</span>
+    </div>
+
+    <script>
+        let currentBase64Image = null;
+        let selectedSampleKey = null;
+
+        // Tab Switcher
+        function switchTab(tabName) {
+            const tabs = ['analyzer', 'rubric', 'tcvn', 'quiz'];
+            tabs.forEach(tab => {
+                const content = document.getElementById(`tab-${tab}`);
+                const btn = document.getElementById(`tab-btn-${tab}`);
+                if (content) {
+                    if (tab === tabName) {
+                        content.classList.remove('hidden');
+                        content.classList.add('block');
+                    } else {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    }
+                }
+                if (btn) {
+                    if (tab === tabName) {
+                        btn.className = 'tab-btn active px-4 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 bg-brand-600 text-white shadow';
+                    } else {
+                        btn.className = 'tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2';
+                    }
+                }
+            });
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+
+        // Toggle Mobile Navigation Menu
+        function toggleMobileNav() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+        }
+
+        // API Key Modal Controls
+        function openApiModal() {
+            const modal = document.getElementById('api-modal');
+            const input = document.getElementById('api-key-input');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+            if (input) {
+                input.value = localStorage.getItem('gemini_api_key') || '';
+            }
+        }
+
+        function closeApiModal() {
+            const modal = document.getElementById('api-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function saveApiKey() {
+            const input = document.getElementById('api-key-input');
+            if (input) {
+                const key = input.value.trim();
+                if (key) {
+                    localStorage.setItem('gemini_api_key', key);
+                    showToast('Đã lưu Google Gemini API Key thành công!', 'success');
+                } else {
+                    localStorage.removeItem('gemini_api_key');
+                    showToast('Đã xóa API Key.', 'info');
+                }
+            }
+            closeApiModal();
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem('gemini_api_key');
+            const input = document.getElementById('api-key-input');
+            if (input) input.value = '';
+            showToast('Đã xóa API Key.', 'info');
+            closeApiModal();
+        }
+
+        // Image Handling Functions
+        function handleFileSelect(event) {
+            const files = event.target.files || (event.dataTransfer && event.dataTransfer.files);
+            if (!files || files.length === 0) return;
+
+            const file = files[0];
+            if (!file.type.match('image.*')) {
+                showToast('Vui lòng chọn một tệp hình ảnh!', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentBase64Image = e.target.result;
+                displayImagePreview(currentBase64Image);
+                showToast('Đã tải ảnh bài vẽ lên thành công!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayImagePreview(src) {
+            const preview = document.getElementById('image-preview');
+            const overlay = document.getElementById('preview-overlay');
+            const placeholder = document.getElementById('upload-placeholder');
+
+            if (preview && overlay && placeholder) {
+                preview.src = src;
+                preview.classList.remove('hidden');
+                overlay.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+        }
+
+        function removeImage() {
+            currentBase64Image = null;
+            selectedSampleKey = null;
+
+            const input = document.getElementById('image-input');
+            if (input) input.value = '';
+
+            const preview = document.getElementById('image-preview');
+            const overlay = document.getElementById('preview-overlay');
+            const placeholder = document.getElementById('upload-placeholder');
+
+            if (preview && overlay && placeholder) {
+                preview.src = '';
+                preview.classList.add('hidden');
+                overlay.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+            showToast('Đã xóa ảnh bài vẽ', 'info');
+        }
+
+        // Load Sample Blueprint Drawings
+        function loadSampleImage(sampleType) {
+            selectedSampleKey = sampleType;
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Draw technical blueprint background
+            ctx.fillStyle = '#0c2340';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = '#38bdf8';
+            ctx.fillStyle = '#38bdf8';
+            ctx.lineWidth = 2.5;
+
+            if (sampleType === 'gia-do') {
+                const taskInput = document.getElementById('task-title');
+                if (taskInput) taskInput.value = 'Vẽ 3 hình chiếu Giá đỡ (Hình 8.11 / 9.10 SGK)';
+                
+                // Front View
+                ctx.strokeRect(80, 80, 220, 140);
+                ctx.beginPath();
+                ctx.arc(190, 150, 45, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Top View (Below Front View)
+                ctx.strokeRect(80, 280, 220, 140);
+                ctx.beginPath();
+                ctx.arc(190, 350, 45, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Side View (Right of Front View)
+                ctx.strokeRect(360, 80, 140, 140);
+
+                // Title Block
+                ctx.strokeRect(500, 480, 260, 80);
+                ctx.font = '14px sans-serif';
+                ctx.fillText('GIÁ ĐỠ - HÌNH 8.11 SGK', 520, 520);
+                ctx.fillText('TỈ LỆ 1:1 - KHOA CÔNG NGHỆ 10', 520, 545);
+
+            } else {
+                const taskInput = document.getElementById('task-title');
+                if (taskInput) taskInput.value = 'Vẽ 3 hình chiếu Gối đỡ (Hình 9.9 SGK)';
+                
+                // Front View
+                ctx.strokeRect(100, 90, 200, 130);
+                ctx.beginPath();
+                ctx.arc(200, 155, 35, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Top View
+                ctx.strokeRect(100, 270, 200, 150);
+
+                // Side View
+                ctx.strokeRect(350, 90, 150, 130);
+
+                // Title Block
+                ctx.strokeRect(500, 480, 260, 80);
+                ctx.font = '14px sans-serif';
+                ctx.fillText('GỐI ĐỠ - HÌNH 9.9 SGK', 520, 520);
+                ctx.fillText('TỈ LỆ 1:1 - CÔNG NGHỆ 10', 520, 545);
+            }
+
+            currentBase64Image = canvas.toDataURL('image/png');
+            displayImagePreview(currentBase64Image);
+            showToast(`Đã tải bài vẽ mẫu: ${sampleType === 'gia-do' ? 'Giá Đỡ' : 'Gối Đỡ'}`, 'success');
+        }
+
+        function analyzeImageCanvas(imgElement) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const width = imgElement.naturalWidth || imgElement.width || 600;
+                const height = imgElement.naturalHeight || imgElement.height || 400;
+                
+                canvas.width = Math.min(width, 800);
+                canvas.height = Math.round(canvas.width * (height / width));
+                
+                ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                const w = canvas.width;
+                const h = canvas.height;
+                
+                // 3x3 Grid Sector Analysis
+                const sectors = Array(9).fill(0).map(() => ({ darkPixels: 0, totalPixels: 0, edgeIntensity: 0 }));
+                let totalBrightness = 0;
+                let darkPixelCount = 0;
+                
+                for (let y = 1; y < h - 1; y++) {
+                    for (let x = 1; x < w - 1; x++) {
+                        const idx = (y * w + x) * 4;
+                        const r = data[idx];
+                        const g = data[idx + 1];
+                        const b = data[idx + 2];
+                        const brightness = (r + g + b) / 3;
+                        totalBrightness += brightness;
+                        
+                        const rightIdx = (y * w + (x + 1)) * 4;
+                        const downIdx = ((y + 1) * w + x) * 4;
+                        const rightBrightness = (data[rightIdx] + data[rightIdx + 1] + data[rightIdx + 2]) / 3;
+                        const downBrightness = (data[downIdx] + data[downIdx + 1] + data[downIdx + 2]) / 3;
+                        
+                        const gradX = Math.abs(brightness - rightBrightness);
+                        const gradY = Math.abs(brightness - downBrightness);
+                        const edge = gradX + gradY;
+                        
+                        const col = Math.min(2, Math.floor((x / w) * 3));
+                        const row = Math.min(2, Math.floor((y / h) * 3));
+                        const secIdx = row * 3 + col;
+                        
+                        sectors[secIdx].totalPixels++;
+                        if (brightness < 185) {
+                            sectors[secIdx].darkPixels++;
+                            darkPixelCount++;
+                        }
+                        if (edge > 20) {
+                            sectors[secIdx].edgeIntensity += edge;
+                        }
+                    }
+                }
+                
+                const avgBrightness = totalBrightness / (w * h);
+                const aspectRatio = width / height;
+                const isLandscape = aspectRatio > 1.1;
+                
+                const topEdgeDensity = (sectors[0].edgeIntensity + sectors[1].edgeIntensity) / (sectors[0].totalPixels + sectors[1].totalPixels);
+                const bottomEdgeDensity = (sectors[6].edgeIntensity + sectors[7].edgeIntensity) / (sectors[6].totalPixels + sectors[7].totalPixels);
+                const rightEdgeDensity = (sectors[2].edgeIntensity + sectors[5].edgeIntensity) / (sectors[2].totalPixels + sectors[5].totalPixels);
+                const titleBlockDensity = sectors[8].edgeIntensity / sectors[8].totalPixels;
+
+                const hasTopLeftView = topEdgeDensity > 10;
+                const hasBottomLeftView = bottomEdgeDensity > 10;
+                const hasTopRightView = rightEdgeDensity > 10;
+                const hasTitleBlock = titleBlockDensity > 12 || (sectors[8].darkPixels / sectors[8].totalPixels > 0.08);
+                
+                const contrastScore = Math.min(100, Math.max(15, Math.round((darkPixelCount / (w * h)) * 450)));
+                
+                resolve({
+                    width,
+                    height,
+                    aspectRatio: aspectRatio.toFixed(2),
+                    isLandscape,
+                    avgBrightness: Math.round(avgBrightness),
+                    contrastScore,
+                    sectors,
+                    hasTopLeftView,
+                    hasBottomLeftView,
+                    hasTopRightView,
+                    hasTitleBlock,
+                    resolutionMP: ((width * height) / 1000000).toFixed(1)
+                });
+            });
+        }
+
+        function buildDynamicVisualReport(metrics, title, focusArea) {
+            let paperType = metrics.isLandscape ? `Khổ ngang (${metrics.width}x${metrics.height}px)` : `Khổ đứng (${metrics.width}x${metrics.height}px)`;
+            
+            let detectedViewsList = [];
+            if (metrics.hasTopLeftView) detectedViewsList.push("Hình chiếu đứng (Vùng Trên-Trái)");
+            if (metrics.hasBottomLeftView) detectedViewsList.push("Hình chiếu bằng (Vùng Dưới-Trái)");
+            if (metrics.hasTopRightView) detectedViewsList.push("Hình chiếu cạnh (Vùng Phải)");
+
+            let viewsSummary = detectedViewsList.length >= 2 
+                ? `Đã phát hiện ${detectedViewsList.length}/3 cụm hình chiếu (${detectedViewsList.join(", ")})` 
+                : `Mới phát hiện ${detectedViewsList.length} cụm hình rõ ràng; nét vẽ một số vùng chiếu còn quá mờ.`;
+
+            let contrastStatus = metrics.contrastScore > 65 
+                ? "Nét vẽ rõ ràng, độ tương phản cao" 
+                : metrics.contrastScore > 40 
+                ? "Nét vẽ trung bình, một số nét chì còn mờ" 
+                : "Nét vẽ mờ hoặc ánh sáng chụp bài bị tối";
+
+            let titleBlockStatus = metrics.hasTitleBlock 
+                ? "Có xuất hiện khối khung nét ở góc dưới bên phải" 
+                : "Chưa phát hiện nét Khung tên $140 \\times 32\\text{ mm}$ ở góc dưới bên phải";
+
+            let levelObj = { title: 'Đang Phát Triển (Developing)', badge: 'Mức 2 / 4', level: 2 };
+            if (detectedViewsList.length === 3 && metrics.hasTitleBlock && metrics.contrastScore > 55) {
+                levelObj = { title: 'Đạt (Proficient)', badge: 'Mức 3 / 4', level: 3 };
+            } else if (detectedViewsList.length < 2 || metrics.contrastScore < 30) {
+                levelObj = { title: 'Cần Cải Thiện (Needs Improvement)', badge: 'Mức 1 / 4', level: 1 };
+            }
+
+            let markdown = `# BÁO CÁO DỮ LIỆU ĐÁNH GIÁ THỰC TẾ BÀI VẼ
+
+**Đề bài / Tên bài:** ${title}
+**Trọng tâm phân tích:** ${focusArea === 'all' ? 'Toàn diện 5 tiêu chuẩn TCVN & PPCG1' : focusArea}
+
+## I. THÔNG SỐ TRÍCH XUẤT THỊ GIÁC VÀ BỐ CỤC
+* **Kích thước & Khổ ảnh:** ${paperType} - Tỷ lệ ${metrics.aspectRatio}.
+* **Độ tương phản nét vẽ:** ${contrastStatus} (Chỉ số nét đậm: **${metrics.contrastScore}/100**).
+* **Nhận diện bố cục hình chiếu:** ${viewsSummary}.
+* **Kiểm tra vùng Khung Tên (Góc Phải):** ${titleBlockStatus}.
+
+## II. BẢNG ĐÁNH GIÁ CHI TIẾT THEO HÌNH ẢNH THỰC TẾ
+
+| Tiêu chuẩn TCVN SGK 10 | Đánh giá thực tế | Chi tiết phân tích từ điểm ảnh bài làm |
+| :--- | :--- | :--- |
+| **1. Bố cục PPCG1 (Bài 9 SGK)** | ${metrics.hasTopLeftView && metrics.hasBottomLeftView ? 'Đạt' : 'Cần kiểm tra'} | ${metrics.hasBottomLeftView ? 'Đã bố trí cụm nét ở vùng Dưới-Trái (vị trí Hình chiếu bằng dưới HCD).' : 'Cần bổ sung hoặc dóng lại Hình chiếu bằng nằm ngay DƯỚI Hình chiếu đứng.'} |
+| **2. Nét vẽ (TCVN 8-24:2002)** | ${metrics.contrastScore > 50 ? 'Đạt' : 'Chưa đạt'} | ${metrics.contrastScore > 50 ? 'Đã có sự phân biệt nét đè đậm trên bài.' : 'Đường bao thấy nét quá mờ ($<0.5\\text{mm}$). Cần dùng chì 2B đè đậm đường bao.'} |
+| **3. Khung tên (TCVN 7285:2003)** | ${metrics.hasTitleBlock ? 'Đạt' : 'Cần cải thiện'} | ${metrics.hasTitleBlock ? 'Vùng góc dưới bên phải có khung thông tin.' : 'Chưa thấy rõ khung tên $140 \\times 32\\text{ mm}$ gồm 9 ô nội dung.'} |
+| **4. Ghi kích thước (TCVN 5705)** | Cần rà soát | Cần kiểm tra đường gióng vượt quá mũi tên $2-4\\text{ mm}$ và chữ số nằm **phía trên** đường kích thước. |
+
+## III. HƯỚNG DẪN TỰ SỬA LỖI TRÊN BẢI VẼ NÀY
+
+### 1. Về Đường nét & Độ tương phản
+- **Thực tế:** Chỉ số nét đậm hiện tại là **${metrics.contrastScore}/100**.
+- **Cách sửa:** Dùng thước kẻ và chì 2B đè lại toàn bộ **đường bao thấy** trên 3 hình chiếu để nét đạt bề rộng $d = 0{,}5 - 0{,}7\text{ mm}$ gấp đôi nét gióng kích thước.
+
+### 2. Về Bố cục và Vị trí Hình chiếu theo PPCG1
+- **Thực tế:** ${viewsSummary}.
+- **Cách sửa:** Kiểm tra đường gióng nằm ngang từ **Hình chiếu đứng** sang **Hình chiếu cạnh** (bên phải) và gióng thẳng đứng xuống **Hình chiếu bằng** (bên dưới).
+
+## IV. 3 BƯỚC HÀNH ĐỘNG CẦN LÀM NGAY
+1. Dùng chỉ đậm đè nổi bật nét bao thấy của vật thể.
+2. Vẽ hoặc điền đủ 9 ô nội dung trong Khung tên góc dưới bên phải.
+3. Rà soát con số kích thước, đảm bảo viết phía trên đường kích thước.`;
+
+            return { markdown: markdown, level: levelObj };
+        }
+
+        async function startAIAnalysis() {
+            if (!currentBase64Image) {
+                showToast('Vui lòng tải ảnh bài vẽ lên hoặc chọn bài mẫu trước!', 'error');
+                return;
+            }
+
+            const taskTitle = document.getElementById('task-title').value || 'Bài tập Vẽ Kỹ Thuật SGK Công nghệ 10';
+            const focusArea = document.getElementById('analysis-focus').value;
+
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('result-container').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+            document.getElementById('analyze-btn').disabled = true;
+
+            // Load Image for actual canvas pixel analysis
+            const tempImg = new Image();
+            tempImg.src = currentBase64Image;
+            await new Promise(r => tempImg.onload = r);
+
+            const metrics = await analyzeImageCanvas(tempImg);
+
+            // Update UI real metric badges
+            document.getElementById('metric-paper').innerText = `${metrics.isLandscape ? 'Khổ Ngang' : 'Khổ Đứng'} (${metrics.width}x${metrics.height}px)`;
+            document.getElementById('metric-contrast').innerText = `${metrics.contrastScore}/100 (${metrics.contrastScore > 50 ? 'Đạt' : 'Nét mờ'})`;
+            document.getElementById('metric-views').innerText = `${(metrics.hasTopLeftView?1:0) + (metrics.hasBottomLeftView?1:0) + (metrics.hasTopRightView?1:0)}/3 Vùng chiếu`;
+            document.getElementById('metric-titleblock').innerText = metrics.hasTitleBlock ? 'Có nét khung tên' : 'Thiếu khung tên';
+
+            const customApiKey = localStorage.getItem('gemini_api_key') || '';
+
+            try {
+                let markdownResult = '';
+                let compLevel = { title: 'Đang Phát Triển (Developing)', badge: 'Mức 2 / 4', level: 2 };
+
+                if (customApiKey) {
+                    const base64DataClean = currentBase64Image.replace(/^data:image\/(png|jpeg|jpg|webp|svg\+xml);base64,/, '');
+                    
+                    const systemPrompt = `Bạn là Trợ lý AI Giáo dục chấm bài Vẽ Kỹ Thuật THPT.
+DỮ LIỆU QUÉT ĐIỂM ẢNH THỰC TẾ TỪ BẢN VẼ:
+- Kích thước ảnh: ${metrics.width}x${metrics.height}px (${metrics.resolutionMP}MP)
+- Tỷ lệ khung: ${metrics.aspectRatio}
+- Chỉ số độ tương phản nét đậm: ${metrics.contrastScore}/100
+- Nhận diện vùng chiếu: Top-Left (HCD): ${metrics.hasTopLeftView}, Bottom-Left (HCB): ${metrics.hasBottomLeftView}, Right (HCC): ${metrics.hasTopRightView}
+- Khung tên góc dưới bên phải: ${metrics.hasTitleBlock ? 'Đã phát hiện' : 'Chưa rõ'}
+
+YÊU CẦU BẮT BUỘC: Nhận xét CỤ THỂ theo đúng dữ liệu số đo pixel thực tế trên bài vẽ này. KHÔNG dùng câu từ chung chung lặp lại.
+Tên bài: "${taskTitle}". Trọng tâm: "${focusArea}".
+
+Định dạng xuất ra Markdown gồm:
+# BÁO CÁO PHÂN TÍCH BÀI VẼ THỰC TẾ
+## I. ĐÁNH GIÁ BỐ CỤC VÀ ĐƯỜNG NÉT THỰC TẾ
+## II. BẢNG ĐÁNH GIÁ TCVN SGK 10 (5 Tiêu chí)
+## III. CHẨN ĐOÁN LỖI BẢN VẼ VÀ HƯỚNG DẪN TỰ SỬA
+## IV. BƯỚC HÀNH ĐỘNG TIẾP THEO`;
+
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${customApiKey}`;
+
+                    const payload = {
+                        contents: [{
+                            parts: [
+                                { text: systemPrompt },
+                                { inlineData: { mimeType: "image/png", data: base64DataClean } }
+                            ]
+                        }]
+                    };
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (text) {
+                            markdownResult = text;
+                            if (markdownResult.includes('Xuất sắc')) compLevel = { title: 'Xuất Sắc (Good)', badge: 'Mức 4 / 4', level: 4 };
+                            else if (markdownResult.includes('Đạt')) compLevel = { title: 'Đạt (Proficient)', badge: 'Mức 3 / 4', level: 3 };
+                            else compLevel = { title: 'Đang Phát Triển (Developing)', badge: 'Mức 2 / 4', level: 2 };
+                        } else {
+                            throw new Error('Empty response');
+                        }
+                    } else {
+                        throw new Error('API request failed');
+                    }
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    const dynamicReport = buildDynamicVisualReport(metrics, taskTitle, focusArea);
+                    markdownResult = dynamicReport.markdown;
+                    compLevel = dynamicReport.level;
+                }
+
+                displayAnalysisResult(markdownResult, compLevel);
+                showToast('Đã phân tích xong dữ liệu thực tế từ bài vẽ!', 'success');
+
+            } catch (error) {
+                console.warn('Fallback to dynamic visual scan report:', error);
+                const dynamicReport = buildDynamicVisualReport(metrics, taskTitle, focusArea);
+                displayAnalysisResult(dynamicReport.markdown, dynamicReport.level);
+                showToast('Đã hiển thị phân tích thực tế từ dữ liệu ảnh bài vẽ!', 'info');
+            } finally {
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('analyze-btn').disabled = false;
+            }
+        }
+
+        function displayAnalysisResult(markdownText, compLevel) {
+            const container = document.getElementById('result-container');
+            const markdownEl = document.getElementById('feedback-markdown');
+            const levelTitle = document.getElementById('level-title');
+            const levelBadge = document.getElementById('level-badge');
+            const exportActions = document.getElementById('export-actions');
+
+            markdownEl.innerHTML = marked.parse(markdownText);
+            levelTitle.innerText = compLevel.title;
+            levelBadge.innerText = compLevel.badge;
+
+            container.classList.remove('hidden');
+            exportActions.classList.remove('hidden');
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        }
+
+        function getFallbackSampleFeedback(title, sampleKey) {
+            let text = `# BÁO CÁO PHÂN TÍCH BÀI VẼ THEO TIÊU CHUẨN SGK CÔNG NGHỆ 10
+
+## I. TỔNG QUAN VÀ MỨC ĐỘ NĂNG LỰC
+- **Mức độ năng lực:** **Đang phát triển (Developing - Mức 2/4)**
+- **Nhận xét chung:** Học sinh đã nắm chắc nguyên tắc xây dựng 3 hình chiếu vuông góc của vật thể. Đã phân biệt được vị trí các hình chiếu theo **Phương pháp chiếu góc thứ nhất (PPCG1)** (Bài 9 SGK). Bài làm cần điều chỉnh chuẩn nét đứt và nét đường gióng kích thước theo TCVN.
+
+## II. BẢNG ĐÁNH GIÁ THEO RUBRIC TCVN SGK 10
+
+| Tiêu chuẩn TCVN | Mức đạt | Nhận xét chi tiết trên bài làm |
+| :--- | :--- | :--- |
+| **1. Khung vẽ & Khung tên (TCVN 7285)** | Đạt | Khung bản vẽ đúng lề. Khung tên kẻ đúng góc phải $140 \times 32\text{ mm}$, cần điền thêm thông tin Tỉ lệ ($1:1$) và Tờ số. |
+| **2. Quy chuẩn Nét vẽ (TCVN 8-24)** | Cần cải thiện | Nét liền đậm ($d$) bao thấy vẽ mờ; nét đứt biểu diễn rãnh rỗng phía sau chưa đều khoảng hở ($3d$). |
+| **3. Bố trí PPCG1 (Bài 9 SGK)** | Xuất sắc | Hình chiếu bằng đặt chuẩn xác ở **DƯỚI** Hình chiếu đứng; Hình chiếu cạnh đặt ở **BÊN PHẢI** Hình chiếu đứng. |
+| **4. Ghi kích thước (TCVN 5705)** | Cần cải thiện | Đường gióng kích thước bị vẽ kéo dính vào nét bao thấy; một số chữ số kích thước nằm đè lên đường kích thước. |
+| **5. Chữ viết kỹ thuật (TCVN 7284-2)** | Đạt | Chữ viết tên chi tiết trong khung tên rõ ràng, khổ chữ $\approx 5\text{ mm}$. |
+
+## III. CHẨN ĐOÁN LỖI VÀ LỜI KHUYÊN ĐỊNH HÌNH (FORMATIVE FEEDBACK)
+
+### 1. Về Quy chuẩn Nét vẽ & Đường tâm (TCVN 8-24:2002)
+* **Lỗi phát hiện:** Đường tâm của lỗ tròn trên hình chiếu đứng đang vẽ bằng nét liền mảnh.
+* **Gợi ý tự sửa:**
+  1. Tra Bảng 8.3 SGK trang 49: Đường tâm phải dùng **Nét gạch dài chấm mảnh**.
+  2. Dùng bút chì nét mảnh gạch đoạn dài khoảng $24d$, khe hở $6d$ kèm chấm mảnh. Nhô đường tâm ra ngoài đường bao từ $2 - 4\text{ mm}$.
+
+### 2. Về Quy tắc Ghi kích thước (TCVN 5705:1993)
+* **Lỗi phát hiện:** Chữ số kích thước đang ghi phía dưới đường kích thước.
+* **Gợi ý tự sửa:**
+  - Theo Hình 8.10 SGK trang 51, chữ số kích thước luôn được viết **phía trên** và song song với đường kích thước.
+  - Tẩy con số cũ, kẻ đường gióng nhô vượt đường kích thước $2 - 4\text{ mm}$ rồi viết lại con số phía trên.
+
+## IV. BƯỚC HÀNH ĐỘNG TIẾP THEO
+1. Dùng chì đậm đè lại toàn bộ đường bao thấy trên $3$ hình chiếu.
+2. Sửa đường tâm thành nét gạch dài chấm mảnh.
+3. Chỉnh lại con số kích thước nằm phía trên đường kích thước.`;
+
+            return {
+                text: text,
+                level: { title: 'Đang Phát Triển (Developing)', badge: 'Mức 2 / 4', level: 2 }
+            };
+        }
+
+        function updateQuizScore() {
+            const checks = document.querySelectorAll('.quiz-check');
+            let checkedCount = 0;
+            checks.forEach(c => { if (c.checked) checkedCount++; });
+
+            const badge = document.getElementById('quiz-score-badge');
+            const status = document.getElementById('quiz-status');
+
+            badge.innerText = `${checkedCount} / ${checks.length} Đạt`;
+
+            if (checkedCount === 0) {
+                status.innerText = 'Hãy tích chọn các mục bạn đã hoàn thành';
+                badge.className = 'px-4 py-2 bg-slate-300 text-slate-700 font-bold text-sm rounded-lg';
+            } else if (checkedCount < 4) {
+                status.innerText = 'Bài vẽ cần bổ sung thêm một số quy chuẩn TCVN trong SGK!';
+                badge.className = 'px-4 py-2 bg-amber-500 text-white font-bold text-sm rounded-lg';
+            } else if (checkedCount < 6) {
+                status.innerText = 'Bài vẽ khá tốt! Kiểm tra nốt tiêu chuẩn còn lại nhé.';
+                badge.className = 'px-4 py-2 bg-blue-600 text-white font-bold text-sm rounded-lg';
+            } else {
+                status.innerText = '🎉 Tuyệt vời! Bản vẽ của bạn đã tuân thủ đầy đủ TCVN SGK Công nghệ 10!';
+                badge.className = 'px-4 py-2 bg-emerald-600 text-white font-bold text-sm rounded-lg';
+            }
+        }
+
+        function copyFeedbackText() {
+            const el = document.getElementById('feedback-markdown');
+            if (!el) return;
+            
+            const textToCopy = el.innerText;
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Đã sao chép báo cáo nhận xét vào bộ nhớ tạm!', 'success');
+            } catch (err) {
+                showToast('Không thể sao chép văn bản', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.innerText = message;
+
+            if (type === 'success') {
+                iconEl.className = 'fa-solid fa-circle-check text-emerald-400 text-base';
+            } else if (type === 'error') {
+                iconEl.className = 'fa-solid fa-triangle-exclamation text-rose-400 text-base';
+            } else {
+                iconEl.className = 'fa-solid fa-circle-info text-cyan-400 text-base';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('drop-zone');
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-brand-500', 'bg-brand-50/80');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-brand-500', 'bg-brand-50/80');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files && files.length > 0) {
+                    document.getElementById('image-input').files = files;
+                    handleFileSelect({ target: { files: files } });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
